@@ -1,5 +1,4 @@
 import "dotenv/config"
-
 import { createBot, createProvider, createFlow, addKeyword, EVENTS } from '@builderbot/bot'
 import { MemoryDB as Database } from '@builderbot/bot'
 import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
@@ -13,15 +12,20 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
     .addAction(async (ctx, { flowDynamic, state, provider }) => {
         await typing(ctx, provider)
         const response = await toAsk(ASSISTANT_ID, ctx.body, state)
-       const chunks = response.split(/\n\n+/);
-for (const chunk of chunks) {
-    await flowDynamic([{ body: chunk.trim() }]);
-}
+        const chunks = response.split(/\n\n+/);
+        for (const chunk of chunks) {
+            await flowDynamic([{ body: chunk.trim() }]);
+        }
     })
 
 const main = async () => {
     const adapterFlow = createFlow([welcomeFlow])
-    const adapterProvider = createProvider(Provider)
+
+    // Integración del código B aquí
+    const adapterProvider = createProvider(Provider, {
+        experimentalSyncMessage: 'Ups, vuélvelo a intentar',
+    })
+
     const adapterDB = new Database()
 
     const { httpServer } = await createBot({
@@ -35,3 +39,4 @@ const main = async () => {
 }
 
 main()
+
