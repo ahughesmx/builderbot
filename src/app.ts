@@ -14,6 +14,13 @@ import { typing } from "./utils/presence";
 const PORT = process.env?.PORT ?? 3008;
 const ASSISTANT_ID = process.env?.ASSISTANT_ID ?? "";
 
+// Definimos las palabras clave relacionadas con la ubicación
+const locationKeywords = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
+
+// Enlace de Google Maps a la ubicación fija
+const googleMapsLink = "https://www.google.com/maps/place/12668+Diaz+Miron,+Veracruz,+Mexico";
+
+// Flujo de bienvenida
 const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
   async (ctx, { flowDynamic, state, provider }) => {
     try {
@@ -30,8 +37,21 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
   }
 );
 
+// Flujo para responder con la ubicación
+const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
+  async (ctx, { flowDynamic, provider }) => {
+    try {
+      await typing(ctx, provider);
+      await flowDynamic([{ body: `Aquí está nuestra ubicación en Google Maps: ${googleMapsLink}` }]);
+    } catch (error) {
+      console.error("Error sending location:", error);
+      await flowDynamic([{ body: "Hubo un error enviando la ubicación." }]);
+    }
+  }
+);
+
 const main = async () => {
-  const adapterFlow = createFlow([welcomeFlow]);
+  const adapterFlow = createFlow([welcomeFlow, locationFlow]);
 
   // Configuración optimizada del proveedor
   const adapterProvider = createProvider(Provider, {
