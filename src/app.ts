@@ -14,28 +14,6 @@ import { typing } from "./utils/presence";
 const PORT = process.env?.PORT ?? 3008;
 const ASSISTANT_ID = process.env?.ASSISTANT_ID ?? "";
 
-// Definir la URL de Google Maps para la ubicación fija
-const LOCATION_URL = "https://www.google.com/maps/place/2668+Diaz Miron,+Veracruz,+Mexico"; // Reemplaza "xxxxxx" con el enlace correcto
-
-// Definir las palabras clave que activarán la respuesta con la ubicación
-const LOCATION_KEYWORDS = ["dirección", "localización", "domicilio", "ubicación"];
-
-const locationFlow = addKeyword<Provider, Database>(EVENTS.MESSAGE).addAction(
-  async (ctx, { flowDynamic, provider }) => {
-    const message = ctx.body.toLowerCase();
-    // Comprobar si el mensaje contiene alguna de las palabras clave de ubicación
-    if (LOCATION_KEYWORDS.some(keyword => message.includes(keyword))) {
-      try {
-        await typing(ctx, provider);
-        await flowDynamic([{ body: `Aquí tienes la ubicación: ${LOCATION_URL}` }]);
-      } catch (error) {
-        console.error("Error enviando ubicación:", error);
-        await flowDynamic([{ body: "Hubo un error al enviar la ubicación." }]);
-      }
-    }
-  }
-);
-
 const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
   async (ctx, { flowDynamic, state, provider }) => {
     try {
@@ -53,7 +31,7 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
 );
 
 const main = async () => {
-  const adapterFlow = createFlow([welcomeFlow, locationFlow]); // Añadir locationFlow al flujo
+  const adapterFlow = createFlow([welcomeFlow]);
 
   // Configuración optimizada del proveedor
   const adapterProvider = createProvider(Provider, {
