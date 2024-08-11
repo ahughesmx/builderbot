@@ -18,7 +18,7 @@ const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 const googleMapsLink = "https://goo.gl/maps/XYZ123"; // Reemplaza XYZ123 con la ubicación deseada
 
 // Palabras clave para responder con el enlace de ubicación
-const locationKeywords = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
+const locationKeywords: [string, ...string[]] = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
 
 // Función para manejar errores de forma centralizada
 const handleError = async (flowDynamic, error, customMessage = "Hubo un error procesando tu mensaje.") => {
@@ -55,7 +55,7 @@ const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
 
 const main = async () => {
   try {
-    const adapterFlow = createFlow([welcomeFlow]);
+    const adapterFlow = createFlow([welcomeFlow, locationFlow]);
 
     // Configuración del proveedor
     const adapterProvider = createProvider(Provider, {
