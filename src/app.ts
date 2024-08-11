@@ -15,7 +15,7 @@ const PORT = process.env.PORT ?? 3008;
 const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 
 // Enlace de Google Maps predefinido
-const googleMapsLink = "https://goo.gl/maps/XYZ123"; // Reemplaza XYZ123 con la ubicación deseada
+const googleMapsLink = "https://www.google.com/maps/place/Eiffel+Tower/@48.8584,2.2945,17z"; // Reemplaza con tu enlace
 
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
