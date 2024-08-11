@@ -16,7 +16,7 @@ const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 
 // Enlace de Google Maps predefinido
 const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; // Reemplaza con tu enlace
-const logoLink = "https://drive.google.com/file/d/19-fenzIEZZtXsnt4tOYaaXyh27NfJexZ/view?usp=sharing"
+const logoLink = "https://verdi-llantas4.odoo.com/web/image/res.users/2/avatar_128?unique=1723410685000"
 
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
@@ -48,7 +48,7 @@ const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
      await flowDynamic([{ body: `Av. Salvador Díaz Mirón #2668, Colonia Electricistas, C.P. 91916, Veracruz, Ver.`, media: logoLink }]);
-     await flowDynamic([{ media: googleMapsLink }]);
+     await flowDynamic([{ body: googleMapsLink }]);
     } catch (error) {
       await handleError(flowDynamic, error, "Error al enviar el enlace de ubicación:");
     }
