@@ -55,7 +55,7 @@ const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
 
 const main = async () => {
   try {
-    const adapterFlow = createFlow([welcomeFlow, locationFlow]);
+    const adapterFlow = createFlow([welcomeFlow]);
 
     // Configuración del proveedor
     const adapterProvider = createProvider(Provider, {
