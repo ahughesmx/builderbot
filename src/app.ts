@@ -19,7 +19,7 @@ const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; // Reemplaza
 const logoLink = "https://iili.io/d0hHo0P.jpg";
 
 // Palabras clave para responder con el enlace de ubicación
-const locationKeywords: [string, ...string[]] = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
+const locationKeywords: [string, ...string[]] = ["dirección", "localización", "localizados", "domicilio", "ubicación", "ubicados", "sucursal", "tienda", "negocio", "mapa"];
 
 // Función para manejar errores de forma centralizada
 const handleError = async (flowDynamic, error, customMessage = "Hubo un error procesando tu mensaje.") => {
