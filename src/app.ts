@@ -15,7 +15,7 @@ const PORT = process.env.PORT ?? 3008;
 const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 
 // Enlace de Google Maps predefinido
-const googleMapsLink = "https://www.google.com/maps?q=48.8584,2.2945"; // Reemplaza con tu enlace
+const googleMapsLink = "https://g.co/kgs/N1UhYZG"; // Reemplaza con tu enlace
 
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
