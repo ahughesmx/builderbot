@@ -16,7 +16,7 @@ const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 
 // Enlace de Google Maps predefinido
 const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; // Reemplaza con tu enlace
-const logoLink = "https://verdi-llantas4.odoo.com/web/image/res.users/2/avatar_128";
+const logoLink = "https://iili.io/d0hHo0P.jpg";
 
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "domicilio", "ubicación", "mapa"];
