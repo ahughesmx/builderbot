@@ -46,8 +46,8 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
 const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
-     //  await flowDynamic([{ body: `Av. Salvador Díaz Mirón #2668, Colonia Electricistas, C.P. 91916, Veracruz, Ver.`, media: ${googleMapsLink} }]);
-      await flowDynamic([{ media: googleMapsLink }]);
+     await flowDynamic([{ body: `Av. Salvador Díaz Mirón #2668, Colonia Electricistas, C.P. 91916, Veracruz, Ver.`, media: googleMapsLink }]);
+     // await flowDynamic([{ media: googleMapsLink }]);
     } catch (error) {
       await handleError(flowDynamic, error, "Error al enviar el enlace de ubicación:");
     }
