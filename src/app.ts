@@ -17,7 +17,7 @@ const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 // Enlace de Google Maps predefinido
 const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; // Reemplaza con tu enlace
 const logoLink = "https://iili.io/d0hHo0P.jpg";
-const promoLink = "https://iili.io/d0hHo0P.jpg";
+const promoLink = "https://cdn.shopify.com/s/files/1/0257/8605/6753/files/Promociones_de_Verano_2024_Banner_web.png";
 
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "localizados", "domicilio", "ubicación", "ubicados", "sucursal", "tienda", "negocio", "mapa"];
@@ -63,7 +63,7 @@ const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
      await flowDynamic([{ body: `Aprovecha en Agosto.`, media: promoLink }]);
-     //await flowDynamic([{ body: googleMapsLink }]);
+     await flowDynamic([{ body: `*Aplican Restricciones*` }]);
     } catch (error) {
       await handleError(flowDynamic, error, "Error al enviar el enlace de ubicación:");
     }
