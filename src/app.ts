@@ -73,7 +73,7 @@ const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
 
 const main = async () => {
   try {
-    const adapterFlow = createFlow([welcomeFlow, locationFlow]);
+    const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow]);
 
     // Configuración del proveedor
     const adapterProvider = createProvider(Provider, {
