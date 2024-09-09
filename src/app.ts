@@ -75,10 +75,8 @@ const main = async () => {
   try {
     const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow]);
 
-const adapterProvider = createProvider(BaileysProvider,{
+const adapterProvider = createProvider(Provider,{
         experimentalSyncMessage: 'Ups vuelvelo a intentar',
-         markOnlineOnConnect: true,    // Marcar al bot como en línea al conectar
-      syncFullHistory: true,        // Sincronizar todo el historial de mensajes al conectar
     });
     
     // Configuración del proveedor
