@@ -76,9 +76,7 @@ const main = async () => {
     const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow]);
 
 const adapterProvider = createProvider(Provider,{
-        experimentalSyncMessage: 'Ups vuelvelo a intentar',
         markOnlineOnConnect: true,    // Marcar al bot como en línea al conectar
-        experimentalSyncMessage: 'Ups vuelvelo a intentar',
         syncFullHistory: true,        // Sincronizar todo el historial de mensajes al conectar
         experimentalSyncMessage: 'Ups vuelvelo a intentar',
     });
