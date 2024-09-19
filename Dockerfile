@@ -33,6 +33,7 @@ COPY --from=builder /app/*.json /app/*-lock.yaml ./
 RUN corepack enable && corepack prepare pnpm@latest --activate 
 ENV PNPM_HOME=/usr/local/bin
 RUN mkdir /app/tmp
+RUN npm install @whiskeysockets/baileys
 RUN npm cache clean --force && pnpm install --production --ignore-scripts \
     && addgroup -g 1001 -S nodejs && adduser -S -u 1001 nodejs \
     && rm -rf $PNPM_HOME/.npm $PNPM_HOME/.node-gyp
