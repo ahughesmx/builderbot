@@ -10,6 +10,8 @@ import { MemoryDB as Database } from "@builderbot/bot";
 import { BaileysProvider as Provider } from "@builderbot/provider-baileys";
 import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants";
 import { typing } from "./utils/presence";
+import { jidDecode } from '@whiskeysockets/baileys'; // Asegúrate de que el import sea correcto
+
 
 const PORT = process.env.PORT ?? 3008;
 const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
@@ -100,15 +102,26 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
       if (history.length === 0) {
         await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
       } else {
-        await provider.sendText('528143044840', `Historial de mensajes del usuario ${ctx.from}:`);
-        for (const message of history) {
-          await provider.sendText('528143044840', `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
+        const decodedJid = jidDecode(ctx.from); // Decodificar el JID
+
+        if (decodedJid && decodedJid.user) {
+          const humanContact = '5588334455'; // Número de contacto humano
+          await provider.sendText(humanContact, `Historial de mensajes del usuario ${decodedJid.user}:`);
+
+          // Reenviar cada mensaje del historial
+          for (const message of history) {
+            await provider.sendText(humanContact, `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
+          }
+
+          await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
+        } else {
+          throw new Error("No se pudo decodificar el JID del usuario.");
         }
-        await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
       }
     } catch (error) {
       // Mostrar el mensaje de error al usuario y loguear el error inmediatamente
       await handleError(flowDynamic, error, "Error al reenviar el historial de mensajes:");
+      console.error("Detalles del error:", error); // Log del error para depuración
     }
   }
 );
