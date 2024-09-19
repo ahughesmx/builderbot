@@ -31,6 +31,15 @@ const handleError = async (flowDynamic, error, customMessage = "Hubo un error pr
   await flowDynamic([{ body: customMessage }]);
 };
 
+// Función para almacenar mensajes en la base de datos
+const saveMessage = async (db: Database, ctx: any) => {
+  const history = db.get(ctx.from) || [];
+  history.push({ from: ctx.from, body: ctx.body, timestamp: Date.now() });
+  db.set(ctx.from, history);
+};
+
+
+
 // Flujo de bienvenida
 const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
   async (ctx, { flowDynamic, state, provider }) => {
@@ -73,17 +82,18 @@ const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
 
 // Flujo para reenviar historial de mensajes a un humano
 const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
-  async (ctx, { flowDynamic, provider }) => {
+  async (ctx, { flowDynamic, provider, database }) => {
     try {
-      const history = await provider.getMessageHistory(ctx.from, 10); // Obtenemos los últimos 10 mensajes del usuario
-
-      // Reenviar historial al número de soporte
-      await provider.sendText('5588334455', `Historial de mensajes del usuario ${ctx.from}:`);
-      for (const message of history) {
-        await provider.sendText('5588334455', `${message}`);
+      const history = database.get(ctx.from) || []; // Obtenemos el historial de mensajes del usuario almacenado
+      if (history.length === 0) {
+        await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
+      } else {
+        await provider.sendText('5588334455', `Historial de mensajes del usuario ${ctx.from}:`);
+        for (const message of history) {
+          await provider.sendText('5588334455', `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
+        }
+        await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
       }
-
-      await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
     } catch (error) {
       await handleError(flowDynamic, error, "Error al reenviar el historial de mensajes:");
     }
