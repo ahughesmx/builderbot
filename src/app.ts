@@ -15,14 +15,13 @@ const PORT = process.env.PORT ?? 3008;
 const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 
 // Enlace de Google Maps predefinido
-const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; // Reemplaza con tu enlace
+const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; 
 const logoLink = "https://iili.io/d0hHo0P.jpg";
 const promoLink = "https://cdn.shopify.com/s/files/1/0257/8605/6753/files/Promociones_de_Verano_2024_Banner_web.png";
 
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "localizados", "domicilio", "ubicación", "ubicados", "sucursal", "tienda", "negocio", "mapa"];
 const promoKeywords: [string, ...string[]] = ["promoción", "promociones", "descuento", "rebaja", "rebajas", "descuentos", "oferta", "ofertas"];
-
 
 // Función para manejar errores de forma centralizada
 const handleError = async (flowDynamic, error, customMessage = "Hubo un error procesando tu mensaje.") => {
@@ -50,43 +49,37 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
 const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
-     await flowDynamic([{ body: `Av. Salvador Díaz Mirón #2668, Colonia Electricistas, C.P. 91916, Veracruz, Ver.`, media: logoLink }]);
-     await flowDynamic([{ body: googleMapsLink }]);
+      await flowDynamic([{ body: `Av. Salvador Díaz Mirón #2668, Colonia Electricistas, C.P. 91916, Veracruz, Ver.`, media: logoLink }]);
+      await flowDynamic([{ body: googleMapsLink }]);
     } catch (error) {
       await handleError(flowDynamic, error, "Error al enviar el enlace de ubicación:");
     }
   }
 );
 
-// Flujo para responder con el enlace de Google Maps
+// Flujo para responder con promociones
 const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
-     await flowDynamic([{ body: `Aprovecha en Agosto.`, media: promoLink }]);
-     await flowDynamic([{ body: `*Aplican Restricciones*` }]);
+      await flowDynamic([{ body: `Aprovecha en Agosto.`, media: promoLink }]);
+      await flowDynamic([{ body: `*Aplican Restricciones*` }]);
     } catch (error) {
-      await handleError(flowDynamic, error, "Error al enviar el enlace de ubicación:");
+      await handleError(flowDynamic, error, "Error al enviar las promociones:");
     }
   }
 );
-
 
 const main = async () => {
   try {
     const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow]);
 
-const adapterProvider = createProvider(Provider,{
-        markOnlineOnConnect: true,    // Marcar al bot como en línea al conectar
-        syncFullHistory: true,        // Sincronizar todo el historial de mensajes al conectar
-        experimentalSyncMessage: 'Ups vuelvelo a intentar',
+    // Proveedor configurado con manejo robusto de iPhones
+    const adapterProvider = createProvider(Provider, {
+      markOnlineOnConnect: true,   // Marcar al bot como en línea al conectar
+      syncFullHistory: true,       // Sincronizar todo el historial de mensajes al conectar
+      experimentalSyncMessage: "Lo siento, tuvimos problemas con tu mensaje. Por favor intenta nuevamente.",
+      retryOnFailure: true,        // Reintentar en caso de fallo de conexión
     });
-    
-    // Configuración del proveedor
-//    const adapterProvider = createProvider(Provider, {
-  //    experimentalSyncMessage: true, // Activar sincronización experimental de mensajes
-//      markOnlineOnConnect: true,    // Marcar al bot como en línea al conectar
-//      syncFullHistory: true,        // Sincronizar todo el historial de mensajes al conectar
-//    });
 
     const adapterDB = new Database();
 
