@@ -98,9 +98,9 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
       if (history.length === 0) {
         await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
       } else {
-        await provider.sendText('5588334455', `Historial de mensajes del usuario ${ctx.from}:`);
+        await provider.sendText('+528143044840', `Historial de mensajes del usuario ${ctx.from}:`);
         for (const message of history) {
-          await provider.sendText('5588334455', `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
+          await provider.sendText('+528143044840', `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
         }
         await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
       }
