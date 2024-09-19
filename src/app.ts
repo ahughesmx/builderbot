@@ -43,6 +43,11 @@ const saveMessage = (from: string, body: string) => {
 
 
 
+// Función para limpiar caracteres basura de las respuestas
+const cleanMessage = (message: string): string => {
+  return message.trim().replace(/【.*?】/g, ""); // Eliminar caracteres no deseados
+};
+
 // Flujo de bienvenida
 const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
   async (ctx, { flowDynamic, state, provider }) => {
@@ -51,8 +56,10 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
       const response = await toAsk(ASSISTANT_ID, ctx.body, state);
       const chunks = response.split(/\n\n+/);
       for (const chunk of chunks) {
-        await flowDynamic([{ body: chunk.trim() }]);
+        const cleanedChunk = cleanMessage(chunk); // Limpiar cada fragmento de la respuesta
+        await flowDynamic([{ body: cleanedChunk }]);
       }
+      saveMessage(ctx.from, ctx.body); // Almacenar el mensaje recibido
     } catch (error) {
       await handleError(flowDynamic, error);
     }
