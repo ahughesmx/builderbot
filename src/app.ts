@@ -24,6 +24,8 @@ const locationKeywords: [string, ...string[]] = ["dirección", "localización", 
 const promoKeywords: [string, ...string[]] = ["promoción", "promociones", "descuento", "rebaja", "rebajas", "descuentos", "oferta", "ofertas"];
 const humanKeywords: [string, ...string[]] = ["persona", "humano", "promotor", "agente", "vendedor", "vendedora"];
 
+// Implementación de almacenamiento local para el historial de mensajes
+const messageHistory: { [key: string]: { body: string, timestamp: number }[] } = {};
 
 // Función para manejar errores de forma centralizada
 const handleError = async (flowDynamic, error, customMessage = "Hubo un error procesando tu mensaje.") => {
@@ -31,11 +33,12 @@ const handleError = async (flowDynamic, error, customMessage = "Hubo un error pr
   await flowDynamic([{ body: customMessage }]);
 };
 
-// Función para almacenar mensajes en la base de datos
-const saveMessage = async (db: Database, ctx: any) => {
-  const history = db.get(ctx.from) || [];
-  history.push({ from: ctx.from, body: ctx.body, timestamp: Date.now() });
-  db.set(ctx.from, history);
+// Función para almacenar mensajes en el historial
+const saveMessage = (from: string, body: string) => {
+  if (!messageHistory[from]) {
+    messageHistory[from] = [];
+  }
+  messageHistory[from].push({ body, timestamp: Date.now() });
 };
 
 
@@ -82,9 +85,9 @@ const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
 
 // Flujo para reenviar historial de mensajes a un humano
 const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
-  async (ctx, { flowDynamic, provider, database }) => {
+  async (ctx, { flowDynamic, provider }) => {
     try {
-      const history = database.get(ctx.from) || []; // Obtenemos el historial de mensajes del usuario almacenado
+      const history = messageHistory[ctx.from] || []; // Obtenemos el historial de mensajes del usuario
       if (history.length === 0) {
         await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
       } else {
@@ -102,7 +105,7 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
 
 const main = async () => {
   try {
-    const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow]);
+    const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow, humanFlow]);
 
     // Proveedor configurado con manejo robusto de iPhones
     const adapterProvider = createProvider(Provider, {
