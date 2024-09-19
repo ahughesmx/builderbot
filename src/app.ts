@@ -22,6 +22,8 @@ const promoLink = "https://cdn.shopify.com/s/files/1/0257/8605/6753/files/Promoc
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "localizados", "domicilio", "ubicación", "ubicados", "sucursal", "tienda", "negocio", "mapa"];
 const promoKeywords: [string, ...string[]] = ["promoción", "promociones", "descuento", "rebaja", "rebajas", "descuentos", "oferta", "ofertas"];
+const humanKeywords: [string, ...string[]] = ["persona", "humano", "promotor", "agente", "vendedor", "vendedora"];
+
 
 // Función para manejar errores de forma centralizada
 const handleError = async (flowDynamic, error, customMessage = "Hubo un error procesando tu mensaje.") => {
@@ -65,6 +67,25 @@ const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
       await flowDynamic([{ body: `*Aplican Restricciones*` }]);
     } catch (error) {
       await handleError(flowDynamic, error, "Error al enviar las promociones:");
+    }
+  }
+);
+
+// Flujo para reenviar historial de mensajes a un humano
+const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
+  async (ctx, { flowDynamic, provider }) => {
+    try {
+      const history = await provider.getMessageHistory(ctx.from, 10); // Obtenemos los últimos 10 mensajes del usuario
+
+      // Reenviar historial al número de soporte
+      await provider.sendText('5588334455', `Historial de mensajes del usuario ${ctx.from}:`);
+      for (const message of history) {
+        await provider.sendText('5588334455', `${message}`);
+      }
+
+      await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
+    } catch (error) {
+      await handleError(flowDynamic, error, "Error al reenviar el historial de mensajes:");
     }
   }
 );
