@@ -10,7 +10,7 @@ import { MemoryDB as Database } from "@builderbot/bot";
 import { BaileysProvider as Provider } from "@builderbot/provider-baileys";
 import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants";
 import { typing } from "./utils/presence";
-import { jidDecode } from '@whiskeysockets/baileys'; // Asegúrate de que el import sea correcto
+import { jidDecode } from "@whiskeysockets/baileys"; // Asegúrate de que el import sea correcto
 
 
 const PORT = process.env.PORT ?? 3008;
