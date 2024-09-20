@@ -100,7 +100,7 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
       if (history.length === 0) {
         await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
       } else {
-        const humanContact = '+522291382380'; // Número de contacto humano
+        const humanContact = '522291382380'; // Número de contacto humano
 
         // Enviar el encabezado del historial
         await provider.sendText(humanContact, `Historial de mensajes del usuario ${ctx.from}:`);
@@ -110,7 +110,7 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
           await provider.sendText(humanContact, `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
         }
 
-        await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
+        await flowDynamic([{ body: "Un agente se pondrá en contacto contigo pronto." }]);
       }
     } catch (error) {
       // Mostrar el mensaje de error al usuario y loguear el error inmediatamente
