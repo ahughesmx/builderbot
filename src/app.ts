@@ -100,7 +100,7 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
       if (history.length === 0) {
         await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
       } else {
-        const humanContact = '52$2291382380@s.whatsapp.net'; // Número de contacto humano
+        const humanContact = '5212291382380@s.whatsapp.net'; // Número de contacto humano
 
         // Enviar el encabezado del historial
         await provider.sendText(humanContact, `Historial de mensajes del usuario ${ctx.from}:`);
