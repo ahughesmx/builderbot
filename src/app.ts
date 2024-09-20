@@ -22,7 +22,7 @@ const promoLink = "https://cdn.shopify.com/s/files/1/0257/8605/6753/files/Promoc
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "localizados", "domicilio", "ubicación", "ubicados", "sucursal", "tienda", "negocio", "mapa"];
 const promoKeywords: [string, ...string[]] = ["promoción", "promociones", "descuento", "rebaja", "rebajas", "descuentos", "oferta", "ofertas"];
-const humanKeywords: [string, ...string[]] = ["persona", "humano", "promotor", "agente", "vendedor", "vendedora"];
+const humanKeywords: [string, ...string[]] = ["persona", "humano", "promotor", "agente", "vendedor", "vendedora", "ventas", "asesor", "asesora"];
 
 // Implementación de almacenamiento local para el historial de mensajes
 const messageHistory: { [key: string]: { body: string, timestamp: number }[] } = {};
@@ -100,7 +100,7 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
       if (history.length === 0) {
         await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
       } else {
-        const humanContact = '5212291382380@s.whatsapp.net'; // Número de contacto humano
+        const humanContact = '5212282444705@s.whatsapp.net'; // Número de contacto humano
 
         // Enviar el encabezado del historial
         await provider.sendText(humanContact, `Historial de mensajes del usuario ${ctx.from}:`);
@@ -110,7 +110,7 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
           await provider.sendText(humanContact, `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
         }
 
-        await flowDynamic([{ body: "Un agente humano se pondrá en contacto contigo pronto." }]);
+        await flowDynamic([{ body: "Un agente se pondrá en contacto contigo pronto." }]);
       }
     } catch (error) {
       // Mostrar el mensaje de error al usuario y loguear el error inmediatamente
