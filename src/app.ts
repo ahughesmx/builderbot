@@ -132,7 +132,7 @@ const main = async () => {
       syncFullHistory: true,       // Sincronizar todo el historial de mensajes al conectar
       experimentalSyncMessage: "Lo siento, tuvimos problemas con tu mensaje. Por favor intenta nuevamente.",
       retryOnFailure: true,        // Reintentar en caso de fallo de conexión
-      connectionTimeoutMs: 20000,
+      //connectionTimeoutMs: 20000,
     });
 
     const adapterDB = new Database();
