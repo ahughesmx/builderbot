@@ -10,7 +10,8 @@ import { MemoryDB as Database } from "@builderbot/bot";
 import { BaileysProvider as Provider } from "@builderbot/provider-baileys";
 import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants";
 import { typing } from "./utils/presence";
-import { transcribeAudio, generateAudio } from './audioUtils';  // Funciones asumidas para procesar audio
+//import { downloadAudio, transcribeAudio } from './audioUtils';
+import { downloadAudio, transcribeAudio, generateAudio } from './audioUtils';  // Funciones asumidas para procesar audio
 
 const PORT = process.env.PORT ?? 3008;
 const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
