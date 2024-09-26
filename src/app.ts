@@ -10,7 +10,6 @@ import { MemoryDB as Database } from "@builderbot/bot";
 import { BaileysProvider as Provider } from "@builderbot/provider-baileys";
 import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants";
 import { typing } from "./utils/presence";
-import axios from "axios"; // Nuevo import
 
 const PORT = process.env.PORT ?? 3008;
 const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
@@ -42,40 +41,11 @@ const saveMessage = (from: string, body: string) => {
   messageHistory[from].push({ body, timestamp: Date.now() });
 };
 
+
+
 // Función para limpiar caracteres basura de las respuestas
 const cleanMessage = (message: string): string => {
   return message.trim().replace(/【.*?】/g, ""); // Eliminar caracteres no deseados
-};
-
-// Función para procesar archivos de audio
-const processAudioMessage = async (ctx, flowDynamic) => {
-  try {
-    // Extraer el enlace del archivo de audio
-    const audioUrl = ctx.message.audio.url;
-
-    // Descargar el archivo de audio desde el enlace
-    const audioData = await axios.get(audioUrl, { responseType: "arraybuffer" });
-
-    // Convertir el archivo de audio en texto usando OpenAI API
-    const transcriptionResponse = await axios.post(
-      "https://api.openai.com/v1/audio/transcriptions",
-      audioData.data,
-      {
-        headers: {
-          "Content-Type": "audio/mpeg",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-      }
-    );
-
-    const transcribedText = transcriptionResponse.data.text;
-
-    // Llamar al flujo de bienvenida o cualquier flujo relevante con el texto transcrito
-    ctx.body = transcribedText;
-    await welcomeFlow.getHandler()(ctx, { flowDynamic });
-  } catch (error) {
-    await handleError(flowDynamic, error, "Error al procesar el mensaje de audio:");
-  }
 };
 
 // Flujo de bienvenida
@@ -86,10 +56,10 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
       const response = await toAsk(ASSISTANT_ID, ctx.body, state);
       const chunks = response.split(/\n\n+/);
       for (const chunk of chunks) {
-        const cleanedChunk = cleanMessage(chunk);
+        const cleanedChunk = cleanMessage(chunk); // Limpiar cada fragmento de la respuesta
         await flowDynamic([{ body: cleanedChunk }]);
       }
-      saveMessage(ctx.from, ctx.body);
+      saveMessage(ctx.from, ctx.body); // Almacenar el mensaje recibido
     } catch (error) {
       await handleError(flowDynamic, error);
     }
@@ -124,47 +94,60 @@ const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
 const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
   async (ctx, { flowDynamic, provider }) => {
     try {
-      const history = messageHistory[ctx.from] || [];
-      console.log(`Historial del usuario ${ctx.from}:`, history);
+      const history = messageHistory[ctx.from] || []; // Obtenemos el historial de mensajes del usuario
+      console.log(`Historial del usuario ${ctx.from}:`, history); // Log para ver el historial
 
       if (history.length === 0) {
         await flowDynamic([{ body: "No hay historial disponible para reenviar." }]);
       } else {
-        const humanContact = '5218143044840@s.whatsapp.net';
+        const humanContact = '5218143044840@s.whatsapp.net'; // Número de contacto humano
+
+        // Enviar el encabezado del historial
         await provider.sendText(humanContact, `Historial de mensajes del usuario ${ctx.from}:`);
 
+        // Reenviar cada mensaje del historial
         for (const message of history) {
           await provider.sendText(humanContact, `${new Date(message.timestamp).toLocaleString()}: ${message.body}`);
         }
 
         await flowDynamic([{ body: "Un agente se pondrá en contacto contigo pronto." }]);
-         await flowDynamic([{body: `Teléfono 2292 300 400`}])
+         await flowDynamic([{body: "Si lo deseas, puedes contactar a un ejecutivo de ventas aquí: [https://wa.me/5218143044840] 📞"
+        }]);
       }
     } catch (error) {
-      await handleError(flowDynamic, error, "Error al reenviar el historial:");
+      // Mostrar el mensaje de error al usuario y loguear el error inmediatamente
+      await flowDynamic([{ body: "Error al reenviar el historial de mensajes." }]);
+      console.error("Detalles del error:", error); // Log del error para depuración
     }
   }
 );
 
-// Flujo para manejar mensajes de audio
-const audioMessageFlow = addKeyword<Provider, Database>(["audio"]).addAction(
-  async (ctx, { flowDynamic }) => {
-    if (ctx.message.audio) {
-      await processAudioMessage(ctx, flowDynamic);
-    } else {
-      await flowDynamic([{ body: "Por favor envía un mensaje de audio para procesar." }]);
-    }
-  }
-);
-
-// Crear flujo principal
-const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow, humanFlow, audioMessageFlow]);
-
-// Iniciar el bot con Baileys como proveedor
 const main = async () => {
-  const provider = createProvider(Provider);
-  const bot = createBot(adapterFlow, provider, Database);
-  bot.start(PORT);
+  try {
+    const adapterFlow = createFlow([welcomeFlow, locationFlow, promoFlow, humanFlow]);
+
+    // Proveedor configurado con manejo robusto de iPhones
+    const adapterProvider = createProvider(Provider, {
+      markOnlineOnConnect: true,   // Marcar al bot como en línea al conectar
+      syncFullHistory: true,       // Sincronizar todo el historial de mensajes al conectar
+      experimentalSyncMessage: "Lo siento, tuvimos problemas con tu mensaje. Por favor intenta nuevamente.",
+      retryOnFailure: true,        // Reintentar en caso de fallo de conexión
+      //connectionTimeoutMs: 20000,
+    });
+
+    const adapterDB = new Database();
+
+    const { httpServer } = await createBot({
+      flow: adapterFlow,
+      provider: adapterProvider,
+      database: adapterDB,
+    });
+
+    httpInject(adapterProvider.server);
+    httpServer(+PORT);
+  } catch (error) {
+    console.error("Error initializing bot:", error);
+  }
 };
 
 main();
