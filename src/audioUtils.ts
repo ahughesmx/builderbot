@@ -1,15 +1,14 @@
 import https from 'https';
 
-// Función para descargar audio
+// Función para descargar un archivo de audio desde una URL
 export const downloadAudio = (url: string): Promise<Buffer> => {
     return new Promise((resolve, reject) => {
         https.get(url, (res) => {
             const { statusCode } = res;
 
-            // Verificar si la solicitud fue exitosa
             if (statusCode !== 200) {
                 reject(new Error(`Error al descargar el audio. Código de estado: ${statusCode}`));
-                res.resume(); // Consumir datos para liberar la memoria
+                res.resume(); 
                 return;
             }
 
@@ -24,22 +23,21 @@ export const downloadAudio = (url: string): Promise<Buffer> => {
                 }
             });
         }).on('error', (err) => {
-            reject(new Error(`Error al intentar descargar el audio: ${err.message}`));
+            reject(new Error(`Error al descargar el audio: ${err.message}`));
         });
     });
 };
 
-// Función para transcribir el audio (simulación)
-export const transcribeAudio = async (audioUrl: string): Promise<string> => {
-    try {
-        const audioBuffer = await downloadAudio(audioUrl);
-        console.log('Audio descargado exitosamente, tamaño del archivo:', audioBuffer.length);
+// Función de simulación de transcripción de audio
+export const transcribeAudio = async (audioBuffer: Buffer): Promise<string> => {
+    // Aquí simulas el proceso de transcripción
+    return 'Simulación de transcripción del audio.';
+};
 
-        // Simulación de transcripción
-        const transcription = 'Simulación de transcripción de la nota de voz.';
-        return transcription;
-    } catch (error) {
-        console.error('Error transcribiendo el audio:', error.message);
-        throw new Error('No se pudo transcribir la nota de voz.');
-    }
+// Función para generar un archivo de audio a partir de texto
+export const generateAudio = async (text: string): Promise<string> => {
+    // Simular el proceso de generación de audio
+    const simulatedAudioPath = '/path/to/generated/audio.mp3';  // Ruta simulada
+    console.log(`Generando audio para el texto: "${text}"`);
+    return simulatedAudioPath;
 };
