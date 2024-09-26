@@ -8,120 +8,56 @@ import {
 } from "@builderbot/bot";
 import { MemoryDB as Database } from "@builderbot/bot";
 import { BaileysProvider as Provider } from "@builderbot/provider-baileys";
-import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants";
-import { typing } from "./utils/presence";
-//import { downloadAudio, transcribeAudio } from './audioUtils';
-import { downloadAudio, transcribeAudio, generateAudio } from './audioUtils';  // Funciones asumidas para procesar audio
+import { downloadAudio, transcribeAudio, generateAudio } from './audioUtils';
 
 const PORT = process.env.PORT ?? 3008;
-const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
-
-// Enlace de Google Maps predefinido
-const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; 
-const logoLink = "https://iili.io/d0hHo0P.jpg";
-const promoLink = "https://cdn.shopify.com/s/files/1/0257/8605/6753/files/Promociones_de_Verano_2024_Banner_web.png";
-
-// Palabras clave para responder con el enlace de ubicación
-const locationKeywords: [string, ...string[]] = ["dirección", "localización", "localizados", "domicilio", "ubicación", "ubicados", "sucursal", "tienda", "negocio", "mapa"];
-const promoKeywords: [string, ...string[]] = ["promoción", "promociones", "descuento", "rebaja", "rebajas", "descuentos", "oferta", "ofertas"];
-const humanKeywords: [string, ...string[]] = ["persona", "humano", "promotor", "agente", "vendedor", "vendedora", "ventas", "asesor", "asesora", "ejecutivo", "ejecutiva"];
-
-// Implementación de almacenamiento local para el historial de mensajes
-const messageHistory: { [key: string]: { body: string, timestamp: number }[] } = {};
-
-// Función para manejar errores de forma centralizada
-const handleError = async (flowDynamic, error, customMessage = "Hubo un error procesando tu mensaje.") => {
-  console.error(customMessage, error);
-  await flowDynamic([{ body: customMessage }]);
-};
-
-// Función para almacenar mensajes en el historial
-const saveMessage = (from: string, body: string) => {
-  if (!messageHistory[from]) {
-    messageHistory[from] = [];
-  }
-  messageHistory[from].push({ body, timestamp: Date.now() });
-};
-
-// Función para procesar notas de voz y generar respuestas
-const processVoiceNoteFlow = addKeyword<Provider, Database>(['voice_note']).addAction(
-  async (ctx, { flowDynamic, provider }) => {
-    try {
-      // Obtener la URL de la nota de voz desde el contexto
-      const audioUrl = ctx?.mediaUrl;
-      if (!audioUrl) {
-        throw new Error("No se detectó una nota de voz.");
-      }
-
-      // Transcribir la nota de voz
-      const transcription = await transcribeAudio(audioUrl);
-      await flowDynamic([{ body: `Tu nota de voz dice: ${transcription}` }]);
-
-      // Generar respuesta en audio
-      const responseText = `Hola, has dicho lo siguiente: ${transcription}. Gracias por tu mensaje.`;
-      const audioResponsePath = await generateAudio(responseText);
-
-      // Enviar la respuesta con audio y transcripción
-      await provider.sendMedia(ctx.from, audioResponsePath, 'audio/mpeg');
-      await flowDynamic([{ body: `Aquí está mi respuesta en audio.` }]);
-    } catch (error) {
-      await handleError(flowDynamic, error, "Error procesando la nota de voz:");
-    }
-  }
-);
-/**
- * Limpia el mensaje eliminando caracteres no deseados o innecesarios.
- * @param message - El mensaje original que se va a limpiar.
- * @returns El mensaje limpio.
- */
-const cleanMessage = (message: string): string => {
-    // Elimina caracteres especiales o patrones no deseados
-    return message.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ .,!?]/g, '');
-};
 
 // Flujo de bienvenida
-const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
-  async (ctx, { flowDynamic, state, provider }) => {
+const welcomeFlow = addKeyword<Provider, Database>(['hi', 'hello', 'hola']).addAnswer(
+  'Te voy a enviar un audio...'
+).addAction(async (ctx, { flowDynamic }) => {
+    const text = `Hola ${ctx.name}, ¿cómo estás? Bienvenido a builderbot.`;
+    const audioPath = await generateAudio(text);  // Generar el archivo de audio a partir del texto
+    await flowDynamic([{
+        body: 'Aquí tienes el audio y el texto.',
+        media: audioPath
+    }]);
+});
+
+// Flujo para manejar notas de voz
+const voiceNoteFlow = addKeyword<Provider, Database>(['nota de voz']).addAction(
+  async (ctx, { flowDynamic, provider }) => {
     try {
-      await typing(ctx, provider);
-      const response = await toAsk(ASSISTANT_ID, ctx.body, state);
-      const chunks = response.split(/\n\n+/);
-      for (const chunk of chunks) {
-        const cleanedChunk = cleanMessage(chunk); // Limpiar cada fragmento de la respuesta
-        await flowDynamic([{ body: cleanedChunk }]);
-      }
-      saveMessage(ctx.from, ctx.body); // Almacenar el mensaje recibido
+        const audioUrl = ctx.urlMedia;  // La URL del archivo de audio enviado por el usuario
+        const audioBuffer = await downloadAudio(audioUrl);  // Descargar el archivo de audio
+        const transcription = await transcribeAudio(audioBuffer);  // Transcribir el audio
+
+        // Generar una respuesta en audio a partir de la transcripción
+        const responseAudioPath = await generateAudio(transcription);
+
+        await flowDynamic([
+            { body: `Transcripción de tu nota de voz: ${transcription}` },
+            { body: 'Aquí tienes la respuesta en audio.', media: responseAudioPath }
+        ]);
     } catch (error) {
-      await handleError(flowDynamic, error);
+        console.error('Error procesando la nota de voz:', error);
+        await flowDynamic([{ body: 'Hubo un error procesando la nota de voz.' }]);
     }
   }
 );
 
 const main = async () => {
-  try {
-    const adapterFlow = createFlow([welcomeFlow, processVoiceNoteFlow]);
+  const adapterFlow = createFlow([welcomeFlow, voiceNoteFlow]);
+  const adapterProvider = createProvider(Provider);
+  const adapterDB = new Database();
 
-    // Proveedor configurado con manejo robusto de iPhones
-    const adapterProvider = createProvider(Provider, {
-      markOnlineOnConnect: true,   // Marcar al bot como en línea al conectar
-      syncFullHistory: true,       // Sincronizar todo el historial de mensajes al conectar
-      experimentalSyncMessage: "Lo siento, tuvimos problemas con tu mensaje. Por favor intenta nuevamente.",
-      retryOnFailure: true,        // Reintentar en caso de fallo de conexión
-    });
+  const { handleCtx, httpServer } = await createBot({
+    flow: adapterFlow,
+    provider: adapterProvider,
+    database: adapterDB,
+  });
 
-    const adapterDB = new Database();
-
-    const { httpServer } = await createBot({
-      flow: adapterFlow,
-      provider: adapterProvider,
-      database: adapterDB,
-    });
-
-    httpInject(adapterProvider.server);
-    httpServer(+PORT);
-  } catch (error) {
-    console.error("Error initializing bot:", error);
-  }
+  httpServer(+PORT);
 };
 
 main();
