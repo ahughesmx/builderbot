@@ -1,19 +1,21 @@
-import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import https from 'https';
 
-// Función para descargar la nota de voz
+// Función para descargar la nota de voz usando https nativo
 const downloadAudio = async (url: string, filePath: string) => {
-    const response = await axios({
-        url,
-        method: 'GET',
-        responseType: 'stream',
-    });
-    const writer = fs.createWriteStream(filePath);
-    response.data.pipe(writer);
     return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
+        const file = fs.createWriteStream(filePath);
+        https.get(url, (response) => {
+            response.pipe(file);
+            file.on('finish', () => {
+                file.close();
+                resolve(true);
+            });
+        }).on('error', (error) => {
+            fs.unlinkSync(filePath); // En caso de error, elimina el archivo creado
+            reject(error.message);
+        });
     });
 };
 
@@ -22,7 +24,7 @@ export const transcribeAudio = async (audioUrl: string): Promise<string> => {
     const audioFilePath = path.join(__dirname, 'audios', `voice-note-${Date.now()}.ogg`);
 
     try {
-        // Descargar la nota de voz
+        // Descargar la nota de voz usando https nativo
         await downloadAudio(audioUrl, audioFilePath);
         console.log(`Audio descargado en: ${audioFilePath}`);
 
