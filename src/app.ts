@@ -68,6 +68,15 @@ const processVoiceNoteFlow = addKeyword<Provider, Database>(['voice_note']).addA
     }
   }
 );
+/**
+ * Limpia el mensaje eliminando caracteres no deseados o innecesarios.
+ * @param message - El mensaje original que se va a limpiar.
+ * @returns El mensaje limpio.
+ */
+const cleanMessage = (message: string): string => {
+    // Elimina caracteres especiales o patrones no deseados
+    return message.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ .,!?]/g, '');
+};
 
 // Flujo de bienvenida
 const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
