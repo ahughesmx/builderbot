@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 
-// Función para descargar la nota de voz usando https nativo
+// Función. para descargar la nota de voz usando https nativo
 const downloadAudio = async (url: string, filePath: string) => {
     return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(filePath);
