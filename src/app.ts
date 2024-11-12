@@ -17,7 +17,7 @@ const ASSISTANT_ID = process.env.ASSISTANT_ID ?? "";
 // Enlace de Google Maps predefinido
 const googleMapsLink = "https://maps.app.goo.gl/THmP2g8CCJMNKCo17"; 
 const logoLink = "https://iili.io/d0hHo0P.jpg";
-const promoLink = "https://cdn.shopify.com/s/files/1/0257/8605/6753/files/Promociones_de_Verano_2024_Banner_web.png";
+const promoLink = "https://res.cloudinary.com/dg4bdeocj/image/upload/v1731448883/promo_afinacion_wwejkv.jpg";
 
 // Palabras clave para responder con el enlace de ubicación
 const locationKeywords: [string, ...string[]] = ["dirección", "localización", "localizados", "domicilio", "ubicación", "ubicados", "sucursal", "tienda", "negocio", "mapa"];
