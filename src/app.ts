@@ -82,7 +82,7 @@ const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
 const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
-      await flowDynamic([{ body: `Aprovecha en Agosto.`, media: promoLink }]);
+      await flowDynamic([{ body: `Aprovecha en Noviembre.`, media: promoLink }]);
       await flowDynamic([{ body: `*Aplican Restricciones*` }]);
     } catch (error) {
       await handleError(flowDynamic, error, "Error al enviar las promociones:");
