@@ -66,7 +66,7 @@ const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
   }
 );
 
-// Flujo para responder con el enlace de Google Maps
+// Flujo para responder con el enlace de Google Maps.
 const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
@@ -78,7 +78,7 @@ const locationFlow = addKeyword<Provider, Database>(locationKeywords).addAction(
   }
 );
 
-// Flujo para responder con promociones
+// Flujo para responder con promociones.
 const promoFlow = addKeyword<Provider, Database>(promoKeywords).addAction(
   async (ctx, { flowDynamic }) => {
     try {
