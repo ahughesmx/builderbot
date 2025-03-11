@@ -111,7 +111,7 @@ const humanFlow = addKeyword<Provider, Database>(humanKeywords).addAction(
         }
 
         await flowDynamic([{ body: "Un agente se pondrá en contacto contigo pronto." }]);
-         await flowDynamic([{body: "Si lo deseas, puedes contactar a un ejecutivo de ventas aquí: [https://wa.me/5218143044840] 📞"
+         await flowDynamic([{body: "Si lo deseas, puedes contactar a un ejecutivo de ventas llamando al 229-621-0400 📞"
         }]);
       }
     } catch (error) {
